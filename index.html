@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Médiation sociale : à vous de jouer</title>
+<style>
+:root{--bg:#dfe7ec;--ink:#16262f;--muted:#51646f;--sun:#f2b705;--good:#1f8a5b;--mid:#2f6fb5;--bad:#b5402f;--panel:#f7fafb}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5;padding:20px}
+main{max-width:920px;margin:0 auto}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:clamp(1.3rem,3.5vw,1.9rem);margin:0}
+.bar{display:flex;gap:8px}
+.btn{font:600 .95rem system-ui,sans-serif;padding:9px 16px;border:2px solid var(--ink);border-radius:8px;background:#fff;color:var(--ink);cursor:pointer}
+.btn.main{background:var(--sun)}
+.btn:hover,.btn:focus-visible{outline:3px solid var(--ink)}
+
+.stage{position:relative;aspect-ratio:16/9;min-height:340px;background:#16262f;border-radius:10px;overflow:hidden;border:3px solid var(--ink)}
+.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.shade{position:absolute;inset:0;background:#0009}
+.chars{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:clamp(3rem,13vw,7rem);padding-bottom:40px}
+.caption{position:absolute;left:0;right:0;bottom:0;padding:14px 18px;background:linear-gradient(transparent,#000d);color:#fff;font-size:clamp(.95rem,2.3vw,1.2rem);min-height:3.4em;z-index:2}
+
+.menu{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;align-content:center}
+.opt{display:flex;flex-direction:column;gap:4px;text-align:left;padding:14px;border:2px solid #fff;border-radius:10px;background:#ffffff1f;color:#fff;font:inherit;cursor:pointer}
+.opt b{font-family:Georgia,serif;font-size:1.05rem}
+.opt span{font-size:.85rem;opacity:.85}
+.opt:hover,.opt:focus-visible{background:#ffffff40;outline:3px solid var(--sun)}
+
+.hot{position:absolute;z-index:4;top:30%;height:38%;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;
+  border:3px solid var(--sun);border-radius:10px;background:#1f6f78c8;color:#fff;font:600 clamp(.8rem,1.9vw,1.05rem)/1.3 system-ui,sans-serif;cursor:pointer;animation:pulse 1.8s ease-in-out infinite}
+.hot:hover,.hot:focus-visible{background:#1f6f78;outline:3px solid #fff;animation:none}
+@keyframes pulse{50%{box-shadow:0 0 0 8px #f2b70566}}
+@media (prefers-reduced-motion:reduce){.hot{animation:none}}
+
+.panel{margin-top:14px;background:var(--panel);border-radius:10px;padding:16px 18px;border-left:6px solid #1f6f78}
+.panel h2{font-family:Georgia,serif;font-size:1.2rem;margin:0 0 4px}
+.panel p{margin:0;max-width:70ch}
+.panel.good{border-color:var(--good)}.panel.mid{border-color:var(--mid)}.panel.bad{border-color:var(--bad)}
+.acts{margin-top:12px;display:flex;gap:8px}
+[hidden]{display:none!important}
+@media(max-width:560px){.menu{grid-template-columns:1fr}}
+
+.art{position:absolute;inset:0;width:100%;height:100%}
+.ch{animation:enter 1s ease-out both}
+@keyframes enter{from{transform:translate(var(--from),0);opacity:0}}
+.bod{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 3s ease-in-out infinite}
+@keyframes breathe{50%{transform:scaleY(1.03)}}
+.mouth{transform-box:fill-box;transform-origin:center}
+.talk .bod{animation:bob .4s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translateY(-1.5px)}}
+.talk .mouth{animation:mth .22s steps(2) infinite}
+@keyframes mth{50%{transform:scaleY(2.4)}}
+.angry .bod{animation:shake .3s linear infinite}
+@keyframes shake{25%{transform:translateX(-.8px)}75%{transform:translateX(.8px)}}
+.tw{animation:tw 2s ease-in-out infinite alternate}
+@keyframes tw{to{opacity:.25}}
+.blink{animation:tw 1.3s steps(2) infinite}
+.glow{animation:tw 3s ease-in-out infinite alternate}
+.cloud{animation:cl 25s linear infinite alternate}
+@keyframes cl{to{transform:translateX(40px)}}
+.swing{transform-origin:80px 0;animation:sw 3s ease-in-out infinite alternate}
+@keyframes sw{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+.ball{animation:bl .7s cubic-bezier(.3,0,.7,1) infinite alternate}
+@keyframes bl{from{transform:translateY(-22px)}to{transform:translateY(0)}}
+.curtain{transform-origin:15px 12px;animation:cu 4s ease-in-out infinite alternate}
+@keyframes cu{to{transform:skewX(-4deg)}}
+.bubble{position:absolute;z-index:3;top:16%;transform:translateX(-50%);max-width:38%;background:#fff;color:var(--ink);padding:8px 12px;border-radius:12px;font-size:clamp(.75rem,1.7vw,1rem);line-height:1.3;box-shadow:0 2px 8px #0005;animation:pop .3s ease-out}
+.bubble:after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;border-top-color:#fff}
+@keyframes pop{from{transform:translateX(-50%) scale(.6);opacity:0}}
+.prob{position:absolute;z-index:3;left:6%;right:6%;top:5%;background:var(--sun);color:var(--ink);padding:10px 16px;border-radius:10px;font:600 clamp(.85rem,2vw,1.15rem)/1.3 Georgia,serif;animation:drop .5s ease-out}
+.prob small{display:block;font:700 .7rem system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+@keyframes drop{from{transform:translateY(-30px);opacity:0}}
+.intro{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;background:#16262ff2;color:#fff}
+.intro h3{font-family:Georgia,serif;margin:0;font-size:clamp(1.2rem,3.5vw,2rem)}
+.intro p{margin:0;max-width:34em;font:600 clamp(1rem,2.6vw,1.4rem)/1.35 Georgia,serif;color:var(--sun)}
+.intro small{opacity:.7}
+.hot{top:47%;height:30%}
+@media (prefers-reduced-motion:reduce){.ch,.bod,.tw,.blink,.glow,.cloud,.swing,.ball,.curtain,.mouth{animation:none!important}}
+.menu{overflow-y:auto;align-content:start}
+.opt{padding:10px 12px}
+.opt span{font-size:.8rem}
+.rnd{grid-column:1/-1;background:var(--sun);border-color:var(--sun);color:var(--ink)}
+.rnd:hover,.rnd:focus-visible{background:#ffd23f}
+.hot:disabled{opacity:.5;cursor:wait;animation:none}
+.hot:disabled:hover{background:#1f6f78c8;outline:none}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Médiation sociale : à vous de jouer</h1>
+    <div class="bar">
+      <button class="btn" id="voice">🔊 Voix off : oui</button>
+      <button class="btn" id="menuBtn">Menu</button>
+    </div>
+  </header>
+
+  <div class="stage" id="stage"></div>
+
+  <section class="panel" id="panel">
+    <h2 id="title"></h2>
+    <p id="msg"></p>
+    <div class="acts" id="acts" hidden>
+      <button class="btn" id="replay">Rejouer ce scénario</button>
+      <button class="btn main" id="rnd">🎲 Scénario au hasard</button>
+      <button class="btn" id="toMenu">Choisir un scénario</button>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ============================================================
+   ANIMATIONS : dessinées en SVG + CSS, aucune vidéo à télécharger.
+   ART[fond] = [décor arrière, premier plan]  (viewBox 160 x 90)
+   ============================================================ */
+const ART = {
+  immeuble:['<rect width="160" height="90" fill="#0f2233"/><circle cx="140" cy="14" r="6" fill="#f4ecc8"/><g fill="#fff" class="tw"><circle cx="20" cy="10" r=".7"/><circle cx="45" cy="22" r=".7"/><circle cx="110" cy="8" r=".7"/><circle cx="125" cy="30" r=".7"/></g><defs><pattern id="w" width="14" height="14" patternUnits="userSpaceOnUse"><rect x="3" y="3" width="8" height="8" fill="#f2c94c" opacity=".75"/></pattern></defs><rect x="15" y="8" width="70" height="66" fill="#2a3b4d"/><rect x="15" y="8" width="70" height="66" fill="url(#w)"/><rect class="blink" x="31" y="31" width="8" height="8" fill="#2a3b4d"/><rect y="74" width="160" height="16" fill="#1b2733"/>',""],
+  porte:['<rect width="160" height="90" fill="#4a3c2e"/><rect x="55" y="8" width="50" height="68" rx="2" fill="#6b4a2a" stroke="#2a1a0a" stroke-width="2"/><circle cx="98" cy="44" r="2" fill="#e0c060"/><rect x="72" y="14" width="16" height="8" fill="#2a1a0a"/><rect y="76" width="160" height="14" fill="#2b2118"/><ellipse class="glow" cx="80" cy="3" rx="14" ry="3" fill="#ffe9a8"/>',""],
+  table:['<rect width="160" height="90" fill="#2b3550"/><rect y="72" width="160" height="18" fill="#1d2338"/><g class="swing"><line x1="80" y1="0" x2="80" y2="16" stroke="#999"/><path d="M68 28L92 28L86 16L74 16Z" fill="#f2b705"/></g>','<rect x="30" y="62" width="100" height="6" rx="2" fill="#a06a3a"/><rect x="30" y="68" width="100" height="22" fill="#7a4b26"/>'],
+  ecole:['<rect width="160" height="90" fill="#8ec9e8"/><circle cx="20" cy="16" r="8" fill="#ffe066"/><g class="cloud" fill="#fff"><ellipse cx="60" cy="18" rx="12" ry="4"/><ellipse cx="68" cy="15" rx="8" ry="4"/></g><rect x="95" y="24" width="58" height="48" fill="#c4705a"/><rect x="92" y="20" width="64" height="6" fill="#8a3f2e"/><g fill="#cfe9f5"><rect x="100" y="32" width="10" height="10"/><rect x="118" y="32" width="10" height="10"/><rect x="136" y="32" width="10" height="10"/></g><rect x="118" y="54" width="12" height="18" fill="#6b3a2a"/><rect y="72" width="160" height="18" fill="#6aa65a"/><rect x="15" y="50" width="4" height="24" fill="#6b4423"/><circle cx="17" cy="44" r="12" fill="#3f8a4a"/>',""],
+  terrain:['<rect width="160" height="90" fill="#2a2150"/><rect y="62" width="160" height="28" fill="#3a7a5a"/><line x1="80" y1="62" x2="80" y2="90" stroke="#fff" opacity=".5"/><circle cx="80" cy="76" r="9" fill="none" stroke="#fff" opacity=".5"/><rect x="146" y="26" width="2" height="38" fill="#888"/><rect x="138" y="26" width="10" height="8" fill="#fff"/><rect x="12" y="22" width="2" height="42" fill="#888"/><circle class="glow" cx="13" cy="20" r="6" fill="#fff3a8"/><circle class="ball" cx="128" cy="84" r="3" fill="#e4802e"/>',""],
+  domicile:['<rect width="160" height="90" fill="#5a3842"/><rect x="15" y="14" width="38" height="34" fill="#9fd3e8" stroke="#3a2028" stroke-width="2"/><line x1="34" y1="14" x2="34" y2="48" stroke="#3a2028"/><path class="curtain" d="M15 12h10v40h-10z" fill="#c05a6a"/><rect y="72" width="160" height="18" fill="#3a2028"/><rect x="108" y="62" width="44" height="5" fill="#8a5a33"/><rect x="112" y="67" width="3" height="14" fill="#6b4423"/><rect x="145" y="67" width="3" height="14" fill="#6b4423"/><rect x="114" y="57" width="10" height="6" fill="#fff"/><rect x="127" y="58" width="10" height="5" fill="#f0e6d0"/>',""]
+};
+
+/* Personnages : [cheveux, peau, vêtement] */
+const PPL = {L:["#8a8a95","#c98f6b","#a8324a"],K:["#1b1b1b","#8d5a3c","#2f6fb5"],I:["#5a3a1f","#e0b08a","#7a3fb0"],O:["#c2862b","#f0c7a0","#e4572e"],S:["#111","#a06a45","#1f8a5b"],R:["#d9d9d9","#e8b894","#555"],B:["#e6e6e6","#e3b48f","#7a5c3a"],J:["#111","#8d5a3c","#e4a11b"],P:["#8a5a2b","#e8b894","#3f8a4a"],N:["#1b1b1b","#b07a55","#1f8a8a"],H:["#5a5a5a","#e3b48f","#b5402f"],M:["#2a2a2a","#d9a679","#8a3f8a"],D:["#6a6a6a","#e8b894","#2a3b4d"]};
+/* Qui apparaît dans chaque scène (le premier qui parle est la première lettre) */
+const CAST = {a1:"L",a2:"L",a3:"L",a4:"K",a5:"K",a6:"K",a7:"LK",a8:"LK",a9:"LK",b1:"IO",b2:"I",b3:"O",b4:"OI",b5:"O",b6:"IO",b7:"IO",c1:"S",c2:"S",c3:"S",c4:"RS",c5:"S",c6:"SR",c7:"SR",d1:"B",d2:"B",d3:"B",d4:"B",d5:"B",d6:"B",d7:"B",e1:"JP",e2:"JP",e3:"JP",e4:"JP",e5:"JP",f1:"HN",f2:"HN",f3:"H",f4:"HN",f5:"H",g1:"MS",g2:"S",g3:"S",g4:"MS",g5:"M",h1:"DL",h2:"DL",h3:"L",h4:"DL",h5:"DL"};
+/* Humeur des personnages (les fins dépendent de end) */
+const MOOD = {a1:"sad",a2:"sad",a4:"angry",a7:"sad",b1:"sad",b2:"sad",b4:"angry",c2:"sad",c4:"angry",d1:"sad",d3:"sad",e1:"angry",e2:"sad",f1:"angry",f2:"sad",g1:"angry",g2:"sad",h1:"angry",h2:"sad"};
+const MOUTH = {happy:"M-3 -23Q0 -19.5 3 -23",sad:"M-3 -21.5Q0 -25 3 -21.5",angry:"M-3 -22H3",neutral:"M-2.5 -22.5H2.5"};
+
+/* Problématique affichée après l'animation de chaque scène de décision */
+const PQ = {
+  a1:"Faut-il d'abord écouter, ou orienter vers la sanction ?",
+  a2:"Faut-il réunir tout le monde, ou rencontrer chacun séparément ?",
+  a4:"Comment répondre à quelqu'un qui se sent déjà accusé ?",
+  a6:"Comment préparer une rencontre équilibrée ?",
+  a7:"Comment donner à chacun sa place dans la discussion ?",
+  b1:"Comment intervenir sans exposer les élèves ?",
+  b2:"Faut-il sanctionner, ou favoriser le dialogue ?",
+  b4:"Comment amener une parole sincère plutôt qu'une excuse forcée ?",
+  c1:"Faut-il disperser le groupe, ou aller à sa rencontre ?",
+  c2:"Faut-il poser des limites, ou construire des règles avec eux ?",
+  c4:"Comment rester impartial face à des avis tranchés ?",
+  d1:"Comment créer le lien avec quelqu'un qui se ferme ?",
+  d3:"Faut-il alerter la famille, ou respecter son souhait ?",
+  d4:"Faire à sa place, ou faire avec lui ?",
+  e1:"Faut-il trancher, ou aider chacun à dire son besoin ?",
+  e2:"Qui décide des règles : le médiateur, ou les colocataires ?",
+  f1:"Comment calmer une colère sans exposer la personne devant tous ?",
+  f2:"Comment répondre à la colère sans créer d'injustice ?",
+  g1:"Comment rester neutre quand chacun cherche un allié ?",
+  g2:"Faut-il parler à la place de la personne, ou l'aider à parler ?",
+  h1:"Comment protéger à la fois le logement de l'un et le droit de l'autre ?",
+  h2:"Comment sécuriser un accord pour que chacun le respecte ?"
+};
+
+/* ============================================================
+   SCÉNARIOS
+   t: titre · bg: fond · e: emojis · l: phrases lues et sous-titrées
+   c: choix [texte, scène suivante] · end: good|mid|bad · d: bilan
+   ============================================================ */
+const SCENARIOS = [
+  {name:"Bruit dans l'immeuble", desc:"Deux voisins, des nuits difficiles.", start:"a1", p:"Comment apaiser un conflit de voisinage sans prendre parti ?"},
+  {name:"Rumeur à l'école", desc:"Un message blessant circule dans la classe.", start:"b1", p:"Comment mettre fin à une rumeur sans humilier personne ?"},
+  {name:"Le city-stade", desc:"Jeunes et riverains s'opposent le soir.", start:"c1", p:"Comment faire cohabiter jeunes et riverains dans un même espace ?"},
+  {name:"Le courrier fermé", desc:"Un senior isolé évite ses démarches.", start:"d1", p:"Comment aider une personne isolée sans décider à sa place ?"},
+  {name:"Entre colocataires", desc:"La vaisselle fait déborder le vase.", start:"e1", p:"Comment régler un désaccord du quotidien sans désigner de coupable ?"},
+  {name:"Distribution alimentaire", desc:"La colère monte dans la file d'attente.", start:"f1", p:"Comment gérer une colère publique en respectant la dignité de chacun ?"},
+  {name:"Disputes en famille", desc:"Une mère et son fils de seize ans s'affrontent.", start:"g1", p:"Comment soutenir chacun dans une famille sans prendre parti ?"},
+  {name:"Retard de loyer", desc:"Un bailleur face à une locataire en difficulté.", start:"h1", p:"Comment concilier le droit du bailleur et la situation de la locataire ?"}
+];
+
+const SCENES = {
+  a1:{t:"Dans le hall", bg:"immeuble", e:"🏢👵🏽",
+    l:["Vous êtes médiateur social dans un immeuble.","Madame Lopez vous arrête : « Je ne dors plus, mon voisin fait du bruit toutes les nuits ! »","Elle est à bout."],
+    c:[["Je l'écoute sans l'interrompre","a2"],["Je lui conseille de porter plainte","a3"]]},
+  a2:{t:"L'écoute", bg:"immeuble", e:"👂🫖",
+    l:["Vous la laissez parler. Peu à peu, sa voix se calme.","« Ce n'est pas qu'il soit méchant… je suis juste épuisée. »"],
+    c:[["Proposer tout de suite une rencontre à trois","a7"],["Aller d'abord voir monsieur Karim seul","a4"]]},
+  a3:{t:"Fin : le conflit s'envenime", bg:"immeuble", e:"📄😠", end:"bad",
+    l:["Elle porte plainte sans avoir parlé à son voisin.","Monsieur Karim se sent attaqué. Le climat se dégrade."],
+    d:"Orienter trop vite vers la sanction ferme le dialogue. La médiation commence par l'écoute."},
+  a4:{t:"Chez monsieur Karim", bg:"porte", e:"🚪🧔🏾",
+    l:["« Encore elle ? Je n'ai rien fait ! »","Il travaille de nuit et rentre tard, fatigué lui aussi."],
+    c:[["« Vous vous sentez accusé, c'est ça ? »","a6"],["Lui rappeler le règlement","a5"]]},
+  a5:{t:"Fin : la porte se ferme", bg:"porte", e:"🚪🔒", end:"bad",
+    l:["« Je connais le règlement, merci. »","Il referme la porte. Le dialogue est rompu."],
+    d:"Faire la leçon place la personne en accusée. Reformuler ce qu'elle ressent ouvre la discussion."},
+  a6:{t:"La reformulation", bg:"porte", e:"🤝💬",
+    l:["Il se détend : « Oui… je fais attention pourtant, je ne pensais pas la gêner. »","Il accepte de parler avec madame Lopez."],
+    c:[["Organiser une rencontre à trois","a7"]]},
+  a7:{t:"Autour de la table", bg:"table", e:"🪑🪑🪑",
+    l:["Madame Lopez et monsieur Karim se regardent sans un mot.","C'est à vous de cadrer l'échange."],
+    c:[["Donner la parole à chacun, à tour de rôle","a8"],["Laisser la discussion se dérouler librement","a9"]]},
+  a8:{t:"Fin : un accord trouvé", bg:"table", e:"🎉🤝", end:"good",
+    l:["Monsieur Karim propose de poser des tapis et d'éviter les bruits après 22 heures.","Madame Lopez accepte de le prévenir directement en cas de gêne."],
+    d:"Écouter chacun, reformuler et cadrer la parole permet aux personnes de construire elles-mêmes la solution."},
+  a9:{t:"Fin : la discussion dérape", bg:"table", e:"🗯️🗯️", end:"mid",
+    l:["Les voix montent, chacun coupe la parole à l'autre.","Vous suspendez la rencontre. Tout n'est pas perdu."],
+    d:"Sans cadre, une rencontre peut envenimer les choses. Fixer un tour de parole dès le début protège chacun."},
+
+  b1:{t:"Dans la cour", bg:"ecole", e:"🏫😢",
+    l:["Dans la cour, Inès pleure : une rumeur circule sur un groupe de discussion.","Des élèves rient. Lola est au centre de la conversation.","Vous intervenez."],
+    c:[["Isoler Inès pour l'écouter","b2"],["Convoquer Lola devant toute la classe","b3"]]},
+  b2:{t:"Le récit d'Inès", bg:"ecole", e:"🪑😔",
+    l:["Inès raconte, la voix tremblante, que le message vient d'un groupe dont Lola fait partie.","Elle ne veut pas de punition, juste que ça s'arrête."],
+    c:[["Lui proposer de rencontrer Lola avec vous","b4"],["Prévenir la direction pour une sanction","b5"]]},
+  b3:{t:"Fin : Lola se braque", bg:"ecole", e:"😤🙅🏽‍♀️", end:"bad",
+    l:["Humiliée devant tous, Lola nie tout en bloc.","Inès se sent encore plus exposée."],
+    d:"Exposer quelqu'un publiquement le pousse à se défendre plutôt qu'à comprendre. Mieux vaut un échange en petit comité."},
+  b4:{t:"Face à face", bg:"table", e:"🪑🪑",
+    l:["Lola arrive, méfiante : « Je n'ai rien fait, c'est les autres ! »","Inès baisse les yeux."],
+    c:[["Demander à Lola comment elle vit la situation","b6"],["Lui demander de s'excuser tout de suite","b7"]]},
+  b5:{t:"Fin : sanction sans dialogue", bg:"ecole", e:"📋🔕", end:"mid",
+    l:["Lola est sanctionnée et le message est supprimé.","Mais la tension reste, et personne n'a parlé."],
+    d:"Une sanction peut être nécessaire, mais seule elle ne répare pas la relation entre les élèves."},
+  b6:{t:"Fin : la vérité rétablie", bg:"table", e:"🌱🤝", end:"good",
+    l:["Lola admet avoir partagé sans réfléchir, par peur d'être exclue du groupe.","Elle propose d'écrire un message pour rétablir la vérité."],
+    d:"Inviter à s'exprimer plutôt qu'à s'excuser permet à la personne de reconnaître son rôle sans perdre la face."},
+  b7:{t:"Fin : des excuses forcées", bg:"table", e:"😶🙄", end:"mid",
+    l:["Lola s'excuse du bout des lèvres.","Inès ne se sent pas entendue."],
+    d:"Des excuses imposées sonnent faux. Elles ont du sens quand elles viennent d'une compréhension partagée."},
+
+  c1:{t:"Le soir sur le terrain", bg:"terrain", e:"🏀🌙",
+    l:["Le soir, des jeunes jouent au city-stade jusqu'à 23 heures.","Des riverains menacent d'appeler la police.","Vous arrivez sur place."],
+    c:[["Aller vers les jeunes pour discuter","c2"],["Appeler la police pour disperser le groupe","c3"]]},
+  c2:{t:"La parole des jeunes", bg:"terrain", e:"🧑🏾‍🤝‍🧑🏻",
+    l:["Samir, 17 ans : « On n'a nulle part d'autre où aller ! »","Il ajoute que personne ne leur parle, sauf pour les engueuler."],
+    c:[["Proposer de fixer ensemble des horaires","c4"],["Leur dire de rentrer, sinon sanction","c5"]]},
+  c3:{t:"Fin : la rupture", bg:"terrain", e:"🚓💢", end:"bad",
+    l:["Les jeunes partent en colère.","Le lendemain, le terrain est saccagé."],
+    d:"Une intervention de force sans dialogue crée du ressentiment et déplace le problème."},
+  c4:{t:"La réunion", bg:"table", e:"🧑🏾🧓🏼🧑🏻",
+    l:["Vous invitez jeunes et riverains à se retrouver devant le terrain.","Un riverain lance : « Ils ne font que des bêtises ! »"],
+    c:[["Rappeler le cadre : chacun parle à son tour","c6"],["Défendre les jeunes face au riverain","c7"]]},
+  c5:{t:"Fin : ils reviennent plus nombreux", bg:"terrain", e:"😠🏀", end:"bad",
+    l:["Les jeunes se sentent méprisés.","Ils reviennent plus tard, plus nombreux."],
+    d:"Menacer sans écouter renforce le sentiment de rejet. Le lien de confiance passe par la reconnaissance."},
+  c6:{t:"Fin : un accord de quartier", bg:"terrain", e:"🌅🤝", end:"good",
+    l:["Un accord émerge : jeu jusqu'à 21 heures 30, et un référent parmi les jeunes.","Le riverain propose de venir voir un match."],
+    d:"Le médiateur reste impartial, pose un cadre et laisse chacun construire des règles communes."},
+  c7:{t:"Fin : un camp perdu", bg:"table", e:"🙅🏼‍♂️💬", end:"mid",
+    l:["Le riverain se braque et quitte la réunion.","Vous avez perdu la confiance d'une des deux parties."],
+    d:"Prendre parti fait perdre la neutralité, pourtant essentielle pour que tout le monde se sente en sécurité."},
+
+  d1:{t:"Chez monsieur Bernard", bg:"domicile", e:"🏠🧓🏼",
+    l:["Vous rendez visite à monsieur Bernard, 78 ans, signalé par le voisinage.","Sur la table, des courriers du bailleur restent fermés.","Il ne veut pas en parler."],
+    c:[["Lui dire qu'il doit absolument les ouvrir","d2"],["Lui proposer un café et prendre de ses nouvelles","d3"]]},
+  d2:{t:"Fin : la porte se ferme", bg:"domicile", e:"🚪😞", end:"bad",
+    l:["« Vous n'êtes pas ma famille, laissez-moi tranquille. »","Il ne répond plus à vos visites."],
+    d:"Une injonction met la personne sur la défensive. Créer le lien d'abord permet d'aborder le sujet ensuite."},
+  d3:{t:"La confiance", bg:"domicile", e:"☕🤲",
+    l:["Il se détend et avoue avoir honte : il ne comprend plus les courriers.","Il a peur qu'on le place en maison de retraite."],
+    c:[["Lui proposer de les lire ensemble, à son rythme","d4"],["Appeler sa fille sans le prévenir","d5"]]},
+  d4:{t:"Les lettres", bg:"domicile", e:"✉️🔍",
+    l:["Vous ouvrez les lettres ensemble : un retard de loyer, et une aide non réclamée.","Monsieur Bernard soupire, soulagé."],
+    c:[["Proposer de contacter l'assistante sociale, avec son accord","d6"],["Remplir seul les formulaires à sa place","d7"]]},
+  d5:{t:"Fin : la confiance brisée", bg:"domicile", e:"💔📞", end:"bad",
+    l:["Monsieur Bernard apprend l'appel et se sent trahi.","Il refuse désormais toute visite."],
+    d:"Agir dans son dos, même avec de bonnes intentions, détruit la confiance. Le consentement est la base de l'accompagnement."},
+  d6:{t:"Fin : une aide obtenue", bg:"domicile", e:"🌻🗓️", end:"good",
+    l:["Il accepte. Un rendez-vous est pris et l'aide est demandée.","Il garde la maîtrise de ses choix."],
+    d:"Accompagner, c'est faire avec la personne, pas à sa place : elle reste actrice de sa situation."},
+  d7:{t:"Fin : une aide sans autonomie", bg:"domicile", e:"📑😐", end:"mid",
+    l:["Le dossier avance rapidement.","Mais monsieur Bernard reste dépendant de vous pour la suite."],
+    d:"Faire à la place de quelqu'un règle le problème mais ne développe pas son autonomie."},
+
+  e1:{t:"Une vaisselle de trop", bg:"domicile",
+    l:["Dans une colocation, la vaisselle s'accumule depuis une semaine.","Jamal explose : « J'en ai marre, je fais tout ici ! »","Paul hausse les épaules : « Je n'ai jamais dit que je ne le ferais pas. »","Les deux se tournent vers vous pour que vous arbitriez."],
+    c:[["Choisir qui a raison","e3"],["Demander à chacun ce dont il a besoin","e2"]]},
+  e2:{t:"Chacun son besoin", bg:"domicile",
+    l:["Jamal explique qu'il se sent seul à porter la maison.","Paul avoue qu'il rentre épuisé de son travail de nuit.","Ils se regardent, un peu surpris."],
+    c:[["Leur imposer un tableau de tâches","e5"],["Les inviter à construire ensemble le partage des tâches","e4"]]},
+  e3:{t:"Fin : un gagnant, un perdant", bg:"domicile", end:"bad",
+    l:["Jamal triomphe. Paul se sent humilié et quitte la pièce.","La tension s'installe pour de longues semaines."],
+    d:"Désigner un gagnant nourrit la rancœur. Chacun doit se sentir entendu avant toute solution."},
+  e4:{t:"Fin : un planning commun", bg:"domicile", end:"good",
+    l:["Ils s'accordent sur un planning tournant.","Chaque dimanche, un court point à deux pour ajuster."],
+    d:"Quand les personnes construisent elles-mêmes la règle, elle est mieux respectée."},
+  e5:{t:"Fin : une règle subie", bg:"domicile", end:"mid",
+    l:["Le tableau est affiché dans la cuisine.","Chacun le suit à contrecœur, sans conviction."],
+    d:"Une règle imposée de l'extérieur est moins bien respectée qu'une règle construite ensemble."},
+
+  f1:{t:"La file d'attente", bg:"table",
+    l:["Lors d'une distribution alimentaire, Hugo s'emporte contre Nadia, la bénévole.","« Vous servez toujours les mêmes avant moi ! »","Nadia répond sèchement : « J'ai suivi la liste, c'est tout ! »","La file d'attente observe en silence."],
+    c:[["Les séparer et proposer un temps calme à chacun","f2"],["Rappeler le règlement devant tout le monde","f3"]]},
+  f2:{t:"À l'écart", bg:"table",
+    l:["Hugo avoue avoir honte de devoir demander de l'aide.","Nadia explique qu'elle a peur de se tromper dans la liste."],
+    c:[["Expliquer clairement aux deux comment fonctionne la liste","f4"],["Promettre à Hugo d'être servi en premier la prochaine fois","f5"]]},
+  f3:{t:"Fin : la honte publique", bg:"table", end:"bad",
+    l:["Hugo, humilié, quitte la file.","Il ne reviendra plus."],
+    d:"Reprendre quelqu'un devant tous le blesse. Il faut d'abord apaiser à l'écart, puis expliquer."},
+  f4:{t:"Fin : des règles transparentes", bg:"table", end:"good",
+    l:["Hugo s'excuse. Nadia propose d'afficher la liste plus clairement.","Les habitants applaudissent l'idée."],
+    d:"Rendre les règles transparentes réduit le sentiment d'injustice et restaure la confiance."},
+  f5:{t:"Fin : une faveur qui divise", bg:"table", end:"mid",
+    l:["Hugo est apaisé.","Mais les autres habitants se sentent lésés."],
+    d:"Une exception règle une situation, mais fragilise l'équité entre les personnes."},
+
+  g1:{t:"Claquement de porte", bg:"domicile",
+    l:["Dans un salon, madame Martin et son fils Samir, seize ans, se disputent à propos de l'école.","« Tu ne fais plus rien, tu ne penses qu'à ton téléphone ! »","« Tu ne m'écoutes jamais ! » répond-il en claquant la porte.","Vous êtes appelé en renfort."],
+    c:[["Parler d'abord à Samir en tête-à-tête","g2"],["Donner raison à la mère devant son fils","g3"]]},
+  g2:{t:"Le secret de Samir", bg:"domicile",
+    l:["Samir confie qu'il a peur de décevoir sa mère depuis un échec scolaire.","Il ne sait pas comment le lui dire."],
+    c:[["Proposer de l'aider à lui parler, avec lui","g4"],["Parler à sa mère à sa place","g5"]]},
+  g3:{t:"Fin : la confiance rompue", bg:"domicile", end:"bad",
+    l:["Samir se sent trahi.","Il s'enferme dans sa chambre et ne veut plus vous voir."],
+    d:"Prendre parti coupe le lien avec l'autre. Le médiateur reste à égale distance de chacun."},
+  g4:{t:"Fin : le dialogue revient", bg:"domicile", end:"good",
+    l:["Mère et fils se parlent enfin, sans cris.","Ils conviennent d'un temps d'étude et d'un temps libre."],
+    d:"Accompagner la parole de chacun permet de rétablir un dialogue durable."},
+  g5:{t:"Fin : une voix portée par un autre", bg:"domicile", end:"mid",
+    l:["La mère comprend la situation.","Mais Samir n'a pas pu dire lui-même ce qu'il ressent."],
+    d:"Parler à la place de quelqu'un règle l'urgence, mais ne lui rend pas sa voix."},
+
+  h1:{t:"Trois mois de retard", bg:"porte",
+    l:["Madame Lopez a trois mois de retard de loyer. Monsieur Durand, son bailleur, s'impatiente.","« Je ne suis pas une association, je veux être payé ! »","« J'ai perdu des heures de travail, je fais ce que je peux… »","Tous les deux se tournent vers vous."],
+    c:[["Écouter la situation de chacun avant de proposer","h2"],["Presser madame Lopez de payer tout de suite","h3"]]},
+  h2:{t:"Une aide oubliée", bg:"porte",
+    l:["Vous découvrez qu'elle peut prétendre à une aide au logement jamais demandée.","Monsieur Durand se dit prêt à attendre si un plan est fixé."],
+    c:[["Proposer un échéancier écrit et aider au dossier d'aide","h4"],["Les laisser s'arranger oralement, sans écrit","h5"]]},
+  h3:{t:"Fin : la panique", bg:"porte", end:"bad",
+    l:["Madame Lopez, paniquée, n'ouvre plus son courrier.","Monsieur Durand lance une procédure."],
+    d:"Mettre la pression sans comprendre la situation aggrave le blocage et peut mener à l'expulsion."},
+  h4:{t:"Fin : un accord écrit", bg:"porte", end:"good",
+    l:["Un plan sur six mois est signé et le dossier d'aide déposé.","Le lien entre les deux est préservé."],
+    d:"Un accord écrit et réaliste sécurise les deux parties et ouvre l'accès aux droits."},
+  h5:{t:"Fin : un accord fragile", bg:"porte", end:"mid",
+    l:["L'accord oral est vite oublié.","Le malentendu revient quelques semaines plus tard."],
+    d:"Sans trace écrite, un accord reste fragile : chacun s'en souvient différemment."}
+};
+
+/* ============================================================
+   MOTEUR
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const stage = $("#stage");
+const synth = window.speechSynthesis;
+let run = 0, voice = true, cur = null;
+
+/* Voix off : lit le texte puis appelle cb ; sans voix, attend un délai */
+function say(txt, cb) {
+  const r = run, go = () => { if (r === run) cb(); };
+  if (!voice || !synth) { setTimeout(go, Math.max(2200, txt.length * 55)); return; }
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(txt);
+  u.lang = "fr-FR"; u.rate = .95;
+  const v = synth.getVoices().find(x => x.lang && x.lang.startsWith("fr"));
+  if (v) u.voice = v;
+  u.onend = go; u.onerror = go;
+  synth.speak(u);
+}
+
+function sayThen(txt, cb) {
+  if (!voice || !synth) cb(); else say(txt, cb);
+}
+
+function menu() {
+  run++; if (synth) synth.cancel();
+  $("#title").textContent = "Choisissez une situation";
+  $("#msg").textContent = "Chaque scénario a plusieurs fins possibles.";
+  $("#panel").className = "panel"; $("#acts").hidden = true;
+  stage.style.background = "linear-gradient(160deg,#27515c,#16262f)";
+  stage.innerHTML = '<div class="menu"><button class="opt rnd" id="rndMenu"><b>🎲 Scénario au hasard</b><span>Une situation tirée au sort parmi ' + SCENARIOS.length + '</span></button>' + SCENARIOS.map((s, i) =>
+    '<button class="opt" data-i="' + i + '"><b>' + s.name + '</b><span>' + s.desc + '</span></button>').join("") + "</div>";
+  stage.querySelectorAll("[data-i]").forEach(b => b.onclick = () => {
+    cur = SCENARIOS[b.dataset.i].start; intro(+b.dataset.i);
+  });
+  $("#rndMenu").onclick = randomScenario;
+}
+
+const played = new Set();
+function randomScenario() {
+  let pool = SCENARIOS.map((_, i) => i).filter(i => !played.has(i));
+  if (!pool.length) { played.clear(); pool = SCENARIOS.map((_, i) => i); }
+  intro(pool[Math.floor(Math.random() * pool.length)]);
+}
+
+function person(k, x, from, mood) {
+  const [h, sk, sh] = PPL[k];
+  const brows = mood === "angry" ? '<path d="M-5 -30L-1 -28.5M5 -30L1 -28.5" stroke="#111" stroke-width=".9"/>' : "";
+  return '<g transform="translate(' + x + ' 84) scale(1.5)"><g class="ch' + (mood === "angry" ? " angry" : "") + '" style="--from:' + from + 'px">' +
+    '<g class="bod"><rect x="-7" y="-20" width="14" height="20" rx="5" fill="' + sh + '"/>' +
+    '<circle cy="-26" r="7" fill="' + sk + '"/><path d="M-7.2 -27A7.2 7.2 0 0 1 7.2 -27Z" fill="' + h + '"/>' +
+    '<circle cx="-2.5" cy="-26" r=".9" fill="#111"/><circle cx="2.5" cy="-26" r=".9" fill="#111"/>' + brows +
+    '<path class="mouth" d="' + MOUTH[mood] + '" stroke="#111" fill="none" stroke-width=".9" stroke-linecap="round"/></g></g></g>';
+}
+
+function scene(id, s) {
+  const [back, front] = ART[s.bg], cast = CAST[id];
+  const xs = cast.length === 1 ? [80] : [50, 110];
+  const m = s.end === "good" ? "happy" : s.end === "bad" ? "angry" : s.end === "mid" ? "sad" : MOOD[id] || "neutral";
+  return '<svg class="art" viewBox="0 0 160 90" preserveAspectRatio="xMidYMid slice">' + back +
+    [...cast].map((k, i) => person(k, xs[i], i ? 40 : -40, m)).join("") + front + "</svg>";
+}
+
+/* Carte d'ouverture : la problématique du scénario */
+function intro(i) {
+  const s = SCENARIOS[i], r = ++run; cur = s.start; played.add(i);
+  $("#title").textContent = s.name; $("#msg").textContent = s.p;
+  $("#panel").className = "panel"; $("#acts").hidden = true;
+  stage.style.background = "#16262f";
+  stage.innerHTML = '<div class="intro" id="intro"><small>Problématique</small><h3>' + s.name + '</h3><p>' + s.p + '</p></div>';
+  const go = () => { if (r === run) play(s.start); };
+  say("Problématique : " + s.p, go);
+}
+
+function play(id) {
+  const s = SCENES[id], r = ++run;
+  $("#title").textContent = s.t; $("#msg").textContent = "";
+  $("#panel").className = "panel" + (s.end ? " " + s.end : ""); $("#acts").hidden = true;
+  stage.style.background = "#16262f";
+  stage.innerHTML = scene(id, s) + '<div class="caption" id="cap"></div>';
+  const chs = stage.querySelectorAll(".ch"), bx = chs.length === 1 ? [50] : [31, 69];
+  let i = 0, d = 0;
+  (function next() {
+    if (r !== run) return;
+    stage.querySelectorAll(".bubble").forEach(b => b.remove());
+    chs.forEach(c => c.classList.remove("talk"));
+    if (i >= s.l.length) return finish(id, s);
+    const t = s.l[i++], q = t.match(/«\s*(.*?)\s*»/);
+    $("#cap").textContent = t;
+    if (q) {
+      const k = d++ % chs.length;
+      chs[k].classList.add("talk");
+      const b = document.createElement("div");
+      b.className = "bubble"; b.textContent = q[1]; b.style.left = bx[k] + "%";
+      stage.appendChild(b);
+    }
+    say(t, next);
+  })();
+}
+
+function finish(id, s) {
+  if (s.end) {
+    $("#msg").textContent = s.d; $("#acts").hidden = true;
+    sayThen(s.d, () => { $("#acts").hidden = false; }); return;
+  }
+  const r = run, n = s.c.length, opts = s.c.slice().sort(() => Math.random() - .5);
+  $("#cap").textContent = "";
+  const pr = document.createElement("div");
+  pr.className = "prob"; pr.innerHTML = "<small>Problématique</small>" + PQ[id];
+  stage.appendChild(pr);
+  say("Problématique : " + PQ[id], () => {
+    if (r !== run) return;
+    $("#cap").textContent = "Écoutez les options…";
+    opts.forEach(([label, next], i) => {
+      const b = document.createElement("button");
+      b.className = "hot"; b.textContent = label; b.disabled = true;
+      const w = n === 1 ? 50 : n === 2 ? 44 : 30;
+      const left = n === 1 ? 25 : n === 2 ? [4, 52][i] : [2, 35, 68][i];
+      b.style.left = left + "%"; b.style.width = w + "%";
+      b.onclick = () => play(next);
+      stage.appendChild(b);
+    });
+    sayThen("Que faites-vous ? " + opts.map((c, i) => "Option " + (i + 1) + " : " + c[0]).join(". "), () => {
+      $("#cap").textContent = "Cliquez sur une zone de la vidéo.";
+      stage.querySelectorAll(".hot").forEach(b => { b.disabled = false; });
+    });
+  });
+}
+
+$("#voice").onclick = () => {
+  voice = !voice;
+  $("#voice").textContent = voice ? "🔊 Voix off : oui" : "🔇 Voix off : non";
+  if (!voice && synth) synth.cancel();
+};
+$("#menuBtn").onclick = menu;
+$("#toMenu").onclick = menu;
+$("#rnd").onclick = randomScenario;
+$("#replay").onclick = () => play(cur);
+if (synth) synth.getVoices();
+menu();
+</script>
+</body>
+</html>
